@@ -79,14 +79,81 @@ public class Cfl
       }
    }
 
-   public String first(String phrase)
+   public Set<String> first(String phrase)
    {
-      return "e"; 
+      Set<String> retSet = new HashSet<String>(); 
+
+      //Rule FIRST(aw) = { a }
+      if (term.contains(String.valueOf(phrase.charAt(0))))
+      {
+         retSet.add(String.valueOf(phrase.charAt(0)));
+         return retSet;
+      }
+
+      //Rule FIRST(A) = U FIRST(w) for all A->w
+      if (nonTerm.contains(phrase))
+      {
+         retSet.addAll(firstOfNonTerm(phrase, new HashSet<Integer>()));
+         return retSet;
+      }
+
+      //Rule FIRST(w) = {   }
+      for (int i = 0; i < phrase.length(); i++)
+      {
+
+      }
+
+      return retSet;
    }
 
-   public String follow(String phrase)
+   public Set<String> firstOfNonTerm(String phrase, Set<Integer> traversedProductions)
    {
-      return "e"; 
+      Set<String> retSet = new HashSet<String>();
+
+      //Loop through each production to find ones with lhs that match the given non terminal
+      for (int i = 0; i < lhs.size(); i++)
+      {
+         if (lhs.get(i) == phrase && !traversedProductions.contains(i))
+         {
+            traversedProductions.add(i);
+
+            //Loop through rhs left to right of the current production
+            for (int j = 0; j < rhs.get(i).length(); j++)
+            {
+               //If symbol being looked at is a terminal then the first set has been computed
+               if (term.contains(String.valueOf(lhs.get(i).charAt(j))))
+               {
+                  retSet.add(String.valueOf(rhs.get(i).charAt(j)));
+                  return retSet;
+               }
+
+               //If symbol being looked at is a non terminal, find its first set and union with retSet
+               if (nonTerm.contains(String.valueOf(rhs.get(i).charAt(j))))
+               {
+                  Set<String> subSet = firstOfNonTerm(String.valueOf(rhs.get(i).charAt(j)), traversedProductions);
+                  retSet.addAll(subSet);
+
+                  //If the current symbol is non nullable then the first set has been computed
+                  if (!subSet.contains("e"))
+                  {
+                     return retSet;
+                  }
+               }
+
+               else
+               {
+                  System.out.println("Unrecognized symbol!");
+               }
+            }
+         }
+      }
+      return retSet;
+   }
+
+   public Set<String> follow(String phrase)
+   {
+      Set<String> retSet = new HashSet<String>(); 
+      return retSet;
    }
 
    public static void main (String [] args)
