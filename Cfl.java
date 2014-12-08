@@ -83,26 +83,34 @@ public class Cfl
    {
       Set<String> retSet = new HashSet<String>(); 
 
-      //Rule FIRST(aw) = { a }
-      if (term.contains(String.valueOf(phrase.charAt(0))))
-      {
-         retSet.add(String.valueOf(phrase.charAt(0)));
-         return retSet;
-      }
-
-      //Rule FIRST(A) = U FIRST(w) for all A->w
-      if (nonTerm.contains(phrase))
-      {
-         retSet.addAll(firstOfNonTerm(phrase, new HashSet<Integer>()));
-         return retSet;
-      }
-
       //Rule FIRST(w) = {   }
       for (int i = 0; i < phrase.length(); i++)
       {
+         //If symbol being looked at is a terminal then the first set has been computed
+         if (term.contains(String.valueOf(phrase.charAt(i))))
+         {
+            retSet.add(String.valueOf(phrase.charAt(i)));
+            return retSet;
+         }
 
+         //If symbol being looked at is a non terminal, find its first set and union with retSet
+         if (nonTerm.contains(String.valueOf(phrase.charAt(i))))
+         {
+            Set<String> subSet = firstOfNonTerm(String.valueOf(phrase.charAt(i)), new HashSet<Integer>());
+            retSet.addAll(subSet);
+
+            //If the current symbol is non nullable then the first set has been computed
+            if (!subSet.contains("e"))
+            {
+               return retSet;
+            }
+         }
+
+         else
+         {
+            System.out.println("Unrecognized symbol!");
+         }
       }
-
       return retSet;
    }
 
@@ -121,7 +129,7 @@ public class Cfl
             for (int j = 0; j < rhs.get(i).length(); j++)
             {
                //If symbol being looked at is a terminal then the first set has been computed
-               if (term.contains(String.valueOf(lhs.get(i).charAt(j))))
+               if (term.contains(String.valueOf(rhs.get(i).charAt(j))))
                {
                   retSet.add(String.valueOf(rhs.get(i).charAt(j)));
                   return retSet;
