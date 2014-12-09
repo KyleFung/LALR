@@ -35,13 +35,9 @@ public class Cfl
          //Loop over every line, each with a production of the form A:w
          while ((currentProduction = br.readLine()) != null)
          {
-            //System.out.println(currentProduction);
             Matcher productionMatcher = productionPattern.matcher(currentProduction);
             if (productionMatcher.find())
             {
-               //System.out.println(productionMatcher.group(1));
-               //System.out.println(productionMatcher.group(2));
-
                //Add terminals and non terminals
                nonTerm.add(productionMatcher.group(1));
                term.addAll(Arrays.asList(Arrays.copyOfRange(productionMatcher.group(2).split(""), 1, productionMatcher.group(2).split("").length)));
@@ -56,6 +52,13 @@ public class Cfl
                System.out.println("Found a non-production!");
             }
          }
+
+         //Ensure that the non terminal and terminal sets are disjoint
+         //If a symbol is a lhs then it must be a non terminal and cannot be in the terminal set
+         term.removeAll(nonTerm);
+
+         //Remove the reserved e symbol (epsilon) from non terminal set
+         term.remove("e");
       }
 
       //In case the file couldn't open
@@ -90,7 +93,7 @@ public class Cfl
          if (term.contains(String.valueOf(phrase.charAt(i))))
          {
             retSet.add(String.valueOf(phrase.charAt(i)));
-            return retSet;
+            continue;
          }
 
          //If symbol being looked at is a non terminal, find its first set and union with retSet
@@ -102,7 +105,7 @@ public class Cfl
             //If the current symbol is non nullable then the first set has been computed
             if (!subSet.contains("e"))
             {
-               return retSet;
+               continue;
             }
          }
 
@@ -114,25 +117,32 @@ public class Cfl
       return retSet;
    }
 
-   public Set<String> firstOfNonTerm(String phrase, Set<Integer> traversedProductions)
+   private Set<String> firstOfNonTerm(String phrase, Set<Integer> traversedProductions)
    {
       Set<String> retSet = new HashSet<String>();
 
       //Loop through each production to find ones with lhs that match the given non terminal
       for (int i = 0; i < lhs.size(); i++)
       {
-         if (lhs.get(i) == phrase && !traversedProductions.contains(i))
+         if (lhs.get(i).equals(phrase) && !traversedProductions.contains(i))
          {
             traversedProductions.add(i);
 
             //Loop through rhs left to right of the current production
             for (int j = 0; j < rhs.get(i).length(); j++)
             {
-               //If symbol being looked at is a terminal then the first set has been computed
+               //If the non terminal is nullable, mark it as so
+               if (rhs.get(i).equals("e"))
+               {
+                  retSet.add("e");
+                  break;
+               }
+
+               //If symbol being looked at is a terminal then the subset of the first set from this production has been computed
                if (term.contains(String.valueOf(rhs.get(i).charAt(j))))
                {
                   retSet.add(String.valueOf(rhs.get(i).charAt(j)));
-                  return retSet;
+                  break;
                }
 
                //If symbol being looked at is a non terminal, find its first set and union with retSet
@@ -141,16 +151,25 @@ public class Cfl
                   Set<String> subSet = firstOfNonTerm(String.valueOf(rhs.get(i).charAt(j)), traversedProductions);
                   retSet.addAll(subSet);
 
-                  //If the current symbol is non nullable then the first set has been computed
+                  //If the current symbol is non nullable then the first set from this production has been computed
                   if (!subSet.contains("e"))
                   {
-                     return retSet;
+                     //Move on to the next production
+                     break;
+                  }
+
+                  //If the current symbol is nullable (implied) and the non terminal expands only to that symbol
+                  //then the non terminal is nullable
+                  if (rhs.get(i).length() == 1)
+                  {
+                     //Mark the non terminal as nullable
+                     retSet.add("e");
                   }
                }
 
                else
                {
-                  System.out.println("Unrecognized symbol!");
+                  System.out.println("Unrecognized symbol: " + rhs.get(i).charAt(j));
                }
             }
          }
@@ -167,7 +186,10 @@ public class Cfl
    public static void main (String [] args)
    {
       Cfl lang = new Cfl("lang.txt"); 
-      System.out.println(lang.term);
-      System.out.println(lang.nonTerm);
+      System.out.println("Terminals: " + lang.term);
+      System.out.println("Non terminals: " + lang.nonTerm);
+      System.out.println("Left hand sides: " + lang.lhs);
+      System.out.println("Right hand sides: " + lang.rhs);
+      System.out.println("First(E) = " + lang.first("E"));
    }
 }
