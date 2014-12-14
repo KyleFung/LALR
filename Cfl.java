@@ -158,9 +158,8 @@ public class Cfl
                      break;
                   }
 
-                  //If the current symbol is nullable (implied) and the non terminal expands only to that symbol
-                  //then the non terminal is nullable
-                  if (rhs.get(i).length() == 1)
+                  //If we are looking at the last symbol and it is nullable (implied from above), then the non terminal is nullable
+                  if (j == rhs.get(i).length() - 1)
                   {
                      //Mark the non terminal as nullable
                      retSet.add("e");
@@ -180,6 +179,45 @@ public class Cfl
    public Set<String> follow(String phrase)
    {
       Set<String> retSet = new HashSet<String>(); 
+
+      //Given string must be a non terminal
+      if(!nonTerm.contains(phrase))
+      {
+         System.out.println("Not a non terminal!");
+         return retSet;
+      }
+
+      return followOfNonTerm(phrase, new HashSet<Integer>());
+   }
+
+   private Set<String> followOfNonTerm(String phrase, Set<Integer> traversedProductions)
+   {
+      Set<String> retSet = new HashSet<String>();
+
+      //Loop through all productions
+      for (int i = 0; i < lhs.size(); i++)
+      {
+         //Only analyze productions that use the given non terminal
+         if (!traversedProductions.contains(i) && rhs.get(i).contains(phrase))
+         {
+            traversedProductions.add(i);
+            //If there is a production B->yAw then FOLLOW(A) = U FIRST(w)
+            for (int j = 0; j < rhs.get(i).length(); j++)
+            {
+               if (String.valueOf(rhs.get(i).charAt(j)).equals(phrase))
+               {
+                  Set<String> firstW = first(rhs.get(i).substring(j+1));
+                  retSet.addAll(firstW);
+                  retSet.remove("e");
+
+                  if (first(rhs.get(i).substring(j+1)).contains("e") || j == rhs.get(i).length() - 1)
+                  {
+                     retSet.addAll(followOfNonTerm(lhs.get(i), traversedProductions));
+                  }
+               }
+            }
+         }
+      }
       return retSet;
    }
 
@@ -191,5 +229,15 @@ public class Cfl
       System.out.println("Left hand sides: " + lang.lhs);
       System.out.println("Right hand sides: " + lang.rhs);
       System.out.println("First(E) = " + lang.first("E"));
+      System.out.println("First(D) = " + lang.first("D"));
+      System.out.println("First(T) = " + lang.first("T"));
+      System.out.println("First(S) = " + lang.first("S"));
+
+      System.out.println("Follow(E) = " + lang.follow("E"));
+      System.out.println("Follow(D) = " + lang.follow("D"));
+      System.out.println("Follow(T) = " + lang.follow("T"));
+      System.out.println("Follow(S) = " + lang.follow("S"));
+      System.out.println("Follow(F) = " + lang.follow("F"));
+      System.out.println("Follow(F) = " + lang.follow("F"));
    }
 }
