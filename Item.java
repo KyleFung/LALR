@@ -25,4 +25,10 @@ public class Item
    {
       return dotPosition;
    }
+
+   public String toString()
+   {
+      String ret = lhs + "->" + rhs.substring(0, dotPosition) + "." + rhs.substring(dotPosition);
+      return ret;
+   }
 }

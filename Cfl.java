@@ -223,18 +223,19 @@ public class Cfl
 
    public Set<Item> closure(Item item)
    {
+      System.out.println(item);
       Set<Item> retSet = new HashSet<Item>();
 
       //If the dot precedes a terminal then the closure set is empty
-      if (term.contains(String.valueOf(item.getLhs().charAt(item.getDot()))))
+      if (term.contains(String.valueOf(item.getRhs().charAt(item.getDot()))))
       {
          return retSet;
       }
 
       //If the dot precedes a non terminal, then add all initial items of that non terminal
-      else if (nonTerm.contains(String.valueOf(item.getLhs().charAt(item.getDot()))))
+      else if (nonTerm.contains(String.valueOf(item.getRhs().charAt(item.getDot()))))
       {
-         Set<Item> initialSet = initialItems(String.valueOf(item.getLhs().charAt(item.getDot())));
+         Set<Item> initialSet = initialItems(String.valueOf(item.getRhs().charAt(item.getDot())));
          retSet.addAll(initialSet);
 
          Item initialArray[] = initialSet.toArray(new Item[initialSet.size()]);
@@ -253,17 +254,17 @@ public class Cfl
       Set<Item> retSet = new HashSet<Item>();
 
       //If the dot precedes a terminal then the closure set is empty
-      if (term.contains(String.valueOf(item.getLhs().charAt(item.getDot()))))
+      if (term.contains(String.valueOf(item.getRhs().charAt(item.getDot()))))
       {
          return retSet;
       }
 
       //If the dot precedes a non terminal, then add all initial items of that non terminal
-      else if (nonTerm.contains(String.valueOf(item.getLhs().charAt(item.getDot()))) &&
-            !traversedNonterminals.contains(String.valueOf(item.getLhs().charAt(item.getDot()))))
+      else if (nonTerm.contains(String.valueOf(item.getRhs().charAt(item.getDot()))) &&
+            !traversedNonterminals.contains(String.valueOf(item.getRhs().charAt(item.getDot()))))
       {
-         traversedNonterminals.add(String.valueOf(item.getLhs().charAt(item.getDot())));
-         Set<Item> initialSet = initialItems(String.valueOf(item.getLhs().charAt(item.getDot())));
+         traversedNonterminals.add(String.valueOf(item.getRhs().charAt(item.getDot())));
+         Set<Item> initialSet = initialItems(String.valueOf(item.getRhs().charAt(item.getDot())));
          retSet.addAll(initialSet);
 
          Item initialArray[] = initialSet.toArray(new Item[initialSet.size()]);
@@ -310,6 +311,7 @@ public class Cfl
       System.out.println("Follow(S) = " + lang.follow("S"));
       System.out.println("Follow(F) = " + lang.follow("F"));
       System.out.println("Follow(F) = " + lang.follow("F"));
-      System.out.println(lang.initialItems("E"));
+
+      System.out.println(lang.closure(new Item("E", "TD", 0)));
    }
 }
