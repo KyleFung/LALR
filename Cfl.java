@@ -226,8 +226,8 @@ public class Cfl
       System.out.println(item);
       Set<Item> retSet = new HashSet<Item>();
 
-      //If the dot precedes a terminal then the closure set is empty
-      if (term.contains(String.valueOf(item.getRhs().charAt(item.getDot()))))
+      //If the dot precedes a terminal then the closure set is empty or given a finished item
+      if (item.getDot() == item.getRhs().length() || term.contains(String.valueOf(item.getRhs().charAt(item.getDot()))))
       {
          return retSet;
       }
@@ -253,8 +253,8 @@ public class Cfl
    {
       Set<Item> retSet = new HashSet<Item>();
 
-      //If the dot precedes a terminal then the closure set is empty
-      if (term.contains(String.valueOf(item.getRhs().charAt(item.getDot()))))
+      //If the dot precedes a terminal then the closure set is empty or given a finished item
+      if (item.getDot() == item.getRhs().length() || term.contains(String.valueOf(item.getRhs().charAt(item.getDot()))))
       {
          return retSet;
       }
@@ -286,8 +286,16 @@ public class Cfl
       {
          if (lhs.get(i).equals(nonTerminal))
          {
-            Item initial = new Item(lhs.get(i), rhs.get(i), 0);
-            retSet.add(initial);
+            if (rhs.get(i).equals("e"))
+            {
+               Item initial = new Item(lhs.get(i), "", 0);
+               retSet.add(initial);
+            }
+            else
+            {
+               Item initial = new Item(lhs.get(i), rhs.get(i), 0);
+               retSet.add(initial);
+            }
          }
       }
       return retSet;
