@@ -293,6 +293,11 @@ public class Cfl
       return retSet;
    }
 
+   public void generateLrTable(Table table)
+   {
+
+   }
+
    public static void main (String [] args)
    {
       Cfl lang = new Cfl("lang.txt"); 
