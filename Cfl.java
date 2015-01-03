@@ -303,7 +303,8 @@ public class Cfl
 
    public void generateLrTable(Table table)
    {
-
+      table = new Table(new ArrayList<String>(term), new ArrayList<String>(nonTerm));
+      table.addState();
    }
 
    public static void main (String [] args)
